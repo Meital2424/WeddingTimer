@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>טיימר חתונה אריאל & מיטל/title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            display: block;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+            color: #333;
+            direction: rtl; 
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            overflow-x: hidden; 
+            
+            background-image: url('TIME.jpg'); 
+
+        }
+
+        .countdown-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 6vh 0.2vw;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 38vw;
+            width: 90%;
+            box-sizing: border-box;
+            backdrop-filter: blur(3px);
+            z-index: 10;
+            position: fixed;
+            top: 55.5%;
+            transform: translateY(-50%);
+            right: 20.95vw; 
+        }
+
+        h1 {
+            color: #e91e63;
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .view-mode-date {
+            color: #84032e;
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            direction: ltr; /* Ensure date is LTR */
+            text-align: center;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            direction: ltr;
+        }
+
+        .time-unit {
+            flex: 1;
+            min-width: 90px;
+            margin: 10px;
+            padding: 15px 10px;
+            background-color: #ffebee;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #d81b60;
+            text-align: center;
+        }
+
+        .time-unit span {
+            display: block;
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            color: #c2185b;
+        }
+
+        #message {
+            margin-top: 30px;
+            font-size: 2rem;
+            color: #867e37;
+            font-weight: bold;
+            text-align: center;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+        }
+
+        #message.wedding-passed {
+            color: #e91e63;
+        }
+
+        @media (max-width: 992px) {
+            .countdown-container {
+                right: 50px; 
+                padding: 25px 30px;
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            .view-mode-date {
+                font-size: 2.5em;
+            }
+            .time-unit span {
+                font-size: 2.2em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .countdown-container {
+                position: relative; 
+                top: auto;
+                transform: none;
+                right: auto;
+                margin: 30px auto; 
+                width: calc(100% - 40px); 
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+            .view-mode-date {
+                font-size: 2em;
+            }
+            .time-unit {
+                flex: 0 0 calc(50% - 20px); 
+                min-width: unset; 
+                margin: 8px;
+                padding: 12px 8px;
+                font-size: 1.1em;
+            }
+            .time-unit span {
+                font-size: 2em;
+            }
+            #message {
+                font-size: 1.1em;
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .countdown-container {
+                padding: 15px;
+                width: calc(100% - 30px); 
+            }
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+            .view-mode-date {
+                font-size: 1.8em;
+            }
+            .time-unit {
+                flex: 0 0 calc(50% - 16px); 
+                margin: 6px;
+                padding: 10px 5px;
+                font-size: 1em;
+            }
+            .time-unit span {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-container" id="countdownContainer">
+        <div id="viewModeDateDisplay" class="view-mode-date"></div>
+
+        <div class="countdown-timer">
+            <div class="time-unit" id="days-unit">
+                <span id="days">0</span>
+                ימים
+            </div>
+            <div class="time-unit" id="hours-unit">
+                <span id="hours">0</span>
+                שעות
+            </div>
+            <div class="time-unit" id="minutes-unit">
+                <span id="minutes">0</span>
+                דקות
+            </div>
+            <div class="time-unit" id="seconds-unit">
+                <span id="seconds">0</span>
+                שניות
+            </div>
+        </div>
+
+        <p id="message"></p>
+    </div>
+
+    <script>
+        const daysSpan = document.getElementById('days');
+        const hoursSpan = document.getElementById('hours');
+        const minutesSpan = document.getElementById('minutes');
+        const secondsSpan = document.getElementById('seconds');
+        const messagePara = document.getElementById('message');
+        const viewModeDateDisplay = document.getElementById('viewModeDateDisplay');
+
+        const fixedWeddingDate = new Date('2025-08-20T00:00:00'); 
+
+        let countdownInterval;
+
+        function formatWeddingDateForDisplay(dateObject) {
+            const day = String(dateObject.getDate()).padStart(2, '0');
+            const month = String(dateObject.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const year = dateObject.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            viewModeDateDisplay.textContent = formatWeddingDateForDisplay(fixedWeddingDate);
+            startCountdown();
+        });
+
+        function startCountdown() {
+            clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jerusalem' }));
+                
+                // Calculate difference for days based on full days from today's midnight to wedding date's midnight
+                const todayIsraelMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const diffMsForDays = fixedWeddingDate.getTime() - todayIsraelMidnight.getTime();
+                let days = Math.ceil(diffMsForDays / (1000 * 60 * 60 * 24));
+
+                if (fixedWeddingDate.getTime() < now.getTime()) {
+                    clearInterval(countdownInterval);
+                    days = 0; // Ensure days is 0 after the wedding
+                    hoursSpan.textContent = '0';
+                    minutesSpan.textContent = '0';
+                    secondsSpan.textContent = '0';
+                    messagePara.textContent = '🥂מזל טוב🥂';
+                    messagePara.classList.add('wedding-passed');
+                    daysSpan.textContent = days;
+                    return;
+                }
+
+                // For hours, minutes, seconds, we need the actual time difference until the *exact* wedding date and time
+                const actualDifferenceMs = fixedWeddingDate.getTime() - now.getTime();
+                const hours = Math.floor((actualDifferenceMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((actualDifferenceMs % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((actualDifferenceMs % (1000 * 60)) / 1000);
+
+                daysSpan.textContent = days;
+                hoursSpan.textContent = hours;
+                minutesSpan.textContent = minutes;
+                secondsSpan.textContent = seconds;
+                messagePara.textContent = 'עד שנשבור את הכוס🥂';
+                messagePara.classList.remove('wedding-passed');
+
+            }, 1000);
+        }
+
+        function resetTimerDisplay() {
+            daysSpan.textContent = '0';
+            hoursSpan.textContent = '0';
+            minutesSpan.textContent = '0';
+            secondsSpan.textContent = '0';
+        }
+    </script>
+</body>
+</html>
